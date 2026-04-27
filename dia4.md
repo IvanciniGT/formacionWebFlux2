@@ -138,6 +138,7 @@ Pruebas de caja blanca: Cuando conozco la implementación de la clase que estoy 
 
 
 ```java
+
 public class AnimalitosServiceImpl implements AnimalitosService {
       
     private final AnimalesRepository repo;
@@ -208,3 +209,110 @@ Una prueba tiene 3 partes:
 Contexto : GIVEN, DADO
 Acción : WHEN, CUANDO
 Resultado esperado : THEN, ENTONCES
+
+
+---
+
+Cuando hacemos pruebas, siempre definimos:
+- Contexto: el estado del mundo antes de ejecutar la acción que queremos probar. Es el GIVEN o DADO.
+- Acción: la acción que queremos probar, el WHEN o CUANDO.
+- Resultado esperado: el resultado que esperamos obtener después de ejecutar la acción, el THEN o ENTONCES.
+
+Elresultado tenemos varias formas de expresarlo:
+- Aserciones: Assertions.equals(resultado, resultado2);        Lenguaje muy imperativo y de bajo nivel
+                                                               Pruebas unitarias creadas por desarrolladores para desarrolladores. 
+El lenguaje de assertions es duro. A rabiar.
+Hay otras sintaxis que podemos usar:
+Aserciones fluidas: 
+
+  assertThat(resultado).isEqualTo(resultado2);   Lenguaje más fluido, más cercano al lenguaje natural, más fácil de leer y escribir.  Esto es más para pruebas de testers y QA.
+
+  En java, tenemos varias librerías que nos permiten escribir aserciones fluidas, como AssertJ
+
+  Hamcrest nos ofrece otra sintaxis de aserciones fluidas, pero es más verbosa que AssertJ... y más expresiva que las aserciones tradicionales.
+
+  resultado.shouldBeEqualTo(resultado2);   Lenguaje aún más fluido, más cercano al lenguaje natural, más fácil de leer y escribir. Esto es más para pruebas de testers y QA.  Esto es lo que nos ofrece la librería Kluent en Kotlin.
+
+
+En Desarrollo tenemos los principios SOLID
+En testing tenemos los principios FIRST
+
+F - Fast: Las pruebas deben ser rápidas de ejecutar, para que se ejecuten con frecuencia.
+I - Independent: Las pruebas deben ser independientes entre sí, para que puedan ejecutarse en cualquier orden.
+R - Repeatable: Las pruebas deben ser repetibles, para que puedan ejecutarse múltiples veces con los mismos resultados.
+S - Self-Validating: Las pruebas deben ser auto-validantes, para que puedan determinar automáticamente si han pasado o fallado.
+T - Timely: Las pruebas deben ser escritas a tiempo, para que puedan detectar errores lo antes posible.
+
+
+-
+--
+
+JAVA 17 records
+public record Persona(String nombre, int edad) {
+    public Persona {
+        if(edad < 0) {
+            throw new IllegalArgumentException("La edad no puede ser negativa");
+        }
+    }
+}
+
+Eso es lo mismo que si escribiera:
+
+public class Persona {
+    private final String nombre;
+    private final int edad;
+
+    public Persona(String nombre, int edad) {
+        if(edad < 0) {
+            throw new IllegalArgumentException("La edad no puede ser negativa");
+        }
+        this.nombre = nombre;
+        this.edad = edad;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public int getEdad() {
+        return edad;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Persona persona = (Persona) o;
+        return edad == persona.edad && Objects.equals(nombre, persona.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nombre, edad);
+    }
+
+    @Override
+    public String toString() {
+        return "Persona{" +
+                "nombre='" + nombre + '\'' +
+                ", edad=" + edad +
+                '}';
+    }
+}
+
+El problema es que llegaron tarde... ya llevabamos usando @ Value de lombok años:
+
+@Value
+public class Persona {
+  
+    String nombre;
+    int edad;
+
+    public Persona(String nombre, int edad) {
+        if(edad < 0) {
+            throw new IllegalArgumentException("La edad no puede ser negativa");
+        }
+        this.nombre = nombre;
+        this.edad = edad;
+    }
+}

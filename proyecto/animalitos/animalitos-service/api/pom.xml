@@ -20,6 +20,28 @@
 
     <!-- Dependencias del proyecto -->
     <dependencies>
+        <!-- Anotaciones de validacion custom (capa servicio impone sus reglas). -->
+        <dependency>
+            <groupId>com.curso.animalitos</groupId>
+            <artifactId>animalitos-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Tests de caja negra (se exportan como test-jar) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project> 

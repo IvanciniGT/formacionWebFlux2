@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.curso.animalitos</groupId>
+        <artifactId>animalitos</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <artifactId>animalitos-repository</artifactId>
+    <packaging>pom</packaging>
+    <name>Animalitos Fermin - Capa de Repositorio</name>
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+    </modules>
+</project>

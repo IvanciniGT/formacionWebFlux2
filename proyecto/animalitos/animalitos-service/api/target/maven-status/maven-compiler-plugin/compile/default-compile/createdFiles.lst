@@ -1,6 +1,10 @@
-main/java/com/curso/animales/service/api/models/AnimalDTO.class
-main/java/com/curso/animales/service/api/exceptions/AnimalitosServiceException$TipoDeError.class
-main/java/com/curso/animales/service/api/exceptions/AnimalitosServiceException.class
-main/java/com/curso/animales/service/api/models/DatosCreacionDeAnimalDTO.class
-main/java/com/curso/animales/service/api/models/DatosModificablesDeAnimalDTO.class
-main/java/com/curso/animales/service/api/AnimalitosService.class
+com/curso/animalitos/service/api/exceptions/RepositorioInaccesibleException.class
+com/curso/animalitos/service/api/exceptions/AnimalNoEncontradoException.class
+com/curso/animalitos/service/api/models/AnimalDTO.class
+com/curso/animalitos/service/api/exceptions/AnimalitosServiceException$TipoDeError.class
+com/curso/animalitos/service/api/AnimalitosService.class
+com/curso/animalitos/service/api/exceptions/DatosInvalidosException.class
+com/curso/animalitos/service/api/exceptions/AnimalYaExisteException.class
+com/curso/animalitos/service/api/exceptions/AnimalitosServiceException.class
+com/curso/animalitos/service/api/models/CrearAnimalDTO.class
+com/curso/animalitos/service/api/models/ModificarAnimalDTO.class

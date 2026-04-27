@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.curso.animalitos</groupId>
+        <artifactId>animalitos</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <artifactId>animalitos-common</artifactId>
+    <packaging>jar</packaging>
+    <name>Animalitos Fermin - Common</name>
+
+    <dependencies>
+        <!-- Bean Validation API + implementacion -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+
+        <!-- Tests -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Trae hibernate-validator + jakarta.el coherentes con la version de Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
