@@ -1,0 +1,5 @@
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos/animalitos-service/api/src/main/java/com/curso/animales/service/api/AnimalitosService.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos/animalitos-service/api/src/main/java/com/curso/animales/service/api/exceptions/AnimalitosServiceException.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos/animalitos-service/api/src/main/java/com/curso/animales/service/api/models/AnimalDTO.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos/animalitos-service/api/src/main/java/com/curso/animales/service/api/models/DatosCreacionDeAnimalDTO.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos/animalitos-service/api/src/main/java/com/curso/animales/service/api/models/DatosModificablesDeAnimalDTO.java

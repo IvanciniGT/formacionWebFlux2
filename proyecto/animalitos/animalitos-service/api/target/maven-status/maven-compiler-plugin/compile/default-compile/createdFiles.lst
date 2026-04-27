@@ -1,0 +1,6 @@
+main/java/com/curso/animales/service/api/models/AnimalDTO.class
+main/java/com/curso/animales/service/api/exceptions/AnimalitosServiceException$TipoDeError.class
+main/java/com/curso/animales/service/api/exceptions/AnimalitosServiceException.class
+main/java/com/curso/animales/service/api/models/DatosCreacionDeAnimalDTO.class
+main/java/com/curso/animales/service/api/models/DatosModificablesDeAnimalDTO.class
+main/java/com/curso/animales/service/api/AnimalitosService.class
