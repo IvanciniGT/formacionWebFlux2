@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.curso.animalitos</groupId>
+        <artifactId>reactive-animalitos-repository</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <artifactId>reactive-animalitos-repository-impl</artifactId>
+    <packaging>jar</packaging>
+    <name>Animalitos Fermin - Repositorio Impl (JPA)</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.curso.animalitos</groupId>
+            <artifactId>reactive-animalitos-repository-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Spring Data JPA -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- MapStruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+        </dependency>
+
+        <!-- BD embebida para tests + runtime de pruebas -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+
+        <!-- Bean Validation: necesario para que @Validated active el proxy
+             que valida los argumentos del repositorio en tiempo de ejecucion. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Tests -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Tests de caja negra heredados del api (test-jar) -->
+        <dependency>
+            <groupId>com.curso.animalitos</groupId>
+            <artifactId>reactive-animalitos-repository-api</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

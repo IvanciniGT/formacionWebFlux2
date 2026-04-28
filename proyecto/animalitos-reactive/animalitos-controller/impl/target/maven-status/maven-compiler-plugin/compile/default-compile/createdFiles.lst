@@ -1,0 +1,4 @@
+com/curso/animalitos/controller/impl/mappers/AnimalControllerMapper.class
+com/curso/animalitos/controller/impl/AnimalitosRestControllerV1Impl.class
+com/curso/animalitos/controller/impl/advice/AnimalitosControllerExceptionHandler.class
+com/curso/animalitos/controller/impl/mappers/AnimalControllerMapperImpl.class

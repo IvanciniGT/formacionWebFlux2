@@ -1,0 +1,5 @@
+com/curso/animalitos/controller/api/AnimalitosControllerV1.class
+com/curso/animalitos/controller/api/models/AnimalRestDTO.class
+com/curso/animalitos/controller/api/models/ErrorResponseDTO.class
+com/curso/animalitos/controller/api/models/ModificarAnimalRequestDTO.class
+com/curso/animalitos/controller/api/models/CrearAnimalRequestDTO.class

@@ -1,0 +1,9 @@
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-service/api/src/main/java/com/curso/animalitos/service/api/AnimalitosService.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-service/api/src/main/java/com/curso/animalitos/service/api/exceptions/AnimalNoEncontradoException.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-service/api/src/main/java/com/curso/animalitos/service/api/exceptions/AnimalYaExisteException.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-service/api/src/main/java/com/curso/animalitos/service/api/exceptions/AnimalitosServiceException.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-service/api/src/main/java/com/curso/animalitos/service/api/exceptions/DatosInvalidosException.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-service/api/src/main/java/com/curso/animalitos/service/api/exceptions/RepositorioInaccesibleException.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-service/api/src/main/java/com/curso/animalitos/service/api/models/AnimalDTO.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-service/api/src/main/java/com/curso/animalitos/service/api/models/CrearAnimalDTO.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-service/api/src/main/java/com/curso/animalitos/service/api/models/ModificarAnimalDTO.java

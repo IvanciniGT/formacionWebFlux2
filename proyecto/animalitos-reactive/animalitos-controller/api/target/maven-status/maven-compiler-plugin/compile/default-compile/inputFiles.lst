@@ -1,0 +1,5 @@
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-controller/api/src/main/java/com/curso/animalitos/controller/api/AnimalitosControllerV1.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-controller/api/src/main/java/com/curso/animalitos/controller/api/models/AnimalRestDTO.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-controller/api/src/main/java/com/curso/animalitos/controller/api/models/CrearAnimalRequestDTO.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-controller/api/src/main/java/com/curso/animalitos/controller/api/models/ErrorResponseDTO.java
+/Users/ivan/Documents/Cursos/formacionWebFlux/proyecto/animalitos-reactive/animalitos-controller/api/src/main/java/com/curso/animalitos/controller/api/models/ModificarAnimalRequestDTO.java

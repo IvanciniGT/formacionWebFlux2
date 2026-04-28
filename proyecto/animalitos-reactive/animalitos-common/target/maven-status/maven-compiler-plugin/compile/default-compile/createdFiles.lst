@@ -1,0 +1,4 @@
+com/curso/animalitos/common/dto/ValidationErrorDTO.class
+com/curso/animalitos/common/validation/NombreValido.class
+com/curso/animalitos/common/validation/EdadValida.class
+com/curso/animalitos/common/validation/EspecieValida.class
