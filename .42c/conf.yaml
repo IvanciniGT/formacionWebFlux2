@@ -1,3 +1,0 @@
-apis:
-  proyecto/animalitos/animalitos-app/target/openapi.json:
-    alias: animalitos-api

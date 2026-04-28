@@ -6,6 +6,7 @@
         <artifactId>animalitos</artifactId>
         <version>1.0.0</version>
     </parent>
+    
     <artifactId>animalitos-common</artifactId>
     <packaging>jar</packaging>
     <name>Animalitos Fermin - Common</name>

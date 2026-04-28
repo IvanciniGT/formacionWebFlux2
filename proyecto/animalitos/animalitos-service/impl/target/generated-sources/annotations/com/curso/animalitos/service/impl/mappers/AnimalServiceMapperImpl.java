@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-04-27T18:57:59+0200",
+    date = "2026-04-28T15:54:14+0200",
     comments = "version: 1.6.3, compiler: javac, environment: Java 25.0.2 (Homebrew)"
 )
 @Component
@@ -29,7 +29,9 @@ public class AnimalServiceMapperImpl implements AnimalServiceMapper {
         id = animal.id();
         nombre = animal.nombre();
         especie = animal.especie();
-        edad = animal.edad();
+        if ( animal.edad() != null ) {
+            edad = animal.edad();
+        }
 
         AnimalDTO animalDTO = new AnimalDTO( id, nombre, especie, edad );
 
@@ -44,13 +46,11 @@ public class AnimalServiceMapperImpl implements AnimalServiceMapper {
 
         String nombre = null;
         String especie = null;
-        int edad = 0;
+        Integer edad = null;
 
         nombre = dto.nombre();
         especie = dto.especie();
-        if ( dto.edad() != null ) {
-            edad = dto.edad();
-        }
+        edad = dto.edad();
 
         String id = null;
 
@@ -66,12 +66,10 @@ public class AnimalServiceMapperImpl implements AnimalServiceMapper {
         }
 
         String especie = null;
-        int edad = 0;
+        Integer edad = null;
 
         especie = dto.especie();
-        if ( dto.edad() != null ) {
-            edad = dto.edad();
-        }
+        edad = dto.edad();
 
         String id = null;
         String nombre = null;

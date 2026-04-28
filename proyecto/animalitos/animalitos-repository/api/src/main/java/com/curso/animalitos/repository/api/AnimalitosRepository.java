@@ -1,6 +1,8 @@
 package com.curso.animalitos.repository.api;
 
 import com.curso.animalitos.domain.Animal;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +19,7 @@ import java.util.Optional;
  */
 public interface AnimalitosRepository {
 
-    Optional<Animal> findById(String id);
+    Optional<Animal> findById(@NotBlank String id);
 
     List<Animal> findAll();
 
@@ -25,13 +27,15 @@ public interface AnimalitosRepository {
      * Crea un nuevo animal. El campo {@code id} del parametro se ignora;
      * la persistencia lo genera y lo devuelve relleno en el resultado.
      */
-    Animal create(Animal datos);
+    Animal create(@Valid Animal datos);
 
     /**
      * Modifica especie y edad del animal con el id indicado. El nombre
-     * NO se modifica (politica de la capa de persistencia).
+     * NO se modifica (politica de la capa de persistencia), por lo que
+     * el {@code Animal} entrante NO se valida con {@code @Valid} (el
+     * nombre puede llegar a null por contrato).
      */
-    Animal update(String id, Animal datos);
+    Animal update(@NotBlank String id, Animal datos);
 
-    Optional<Animal> deleteById(String id);
+    Optional<Animal> deleteById(@NotBlank String id);
 }

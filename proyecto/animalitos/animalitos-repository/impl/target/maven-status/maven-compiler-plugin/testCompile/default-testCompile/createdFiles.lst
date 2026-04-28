@@ -1,2 +1,3 @@
+com/curso/animalitos/repository/impl/AnimalitosRepositoryJpaImplContractTest.class
+com/curso/animalitos/repository/impl/TestApplication.class
 com/curso/animalitos/repository/impl/entities/AnimalEntityTest.class
-com/curso/animalitos/repository/impl/AnimalitosRepositoryJpaImplContractIT.class

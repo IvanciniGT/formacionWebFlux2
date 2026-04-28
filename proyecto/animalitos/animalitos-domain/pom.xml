@@ -19,6 +19,13 @@
 
 
     <!-- Dependencias del proyecto -->
-    <dependencies></dependencies>
+    <dependencies>
+        <!-- Anotaciones de validacion custom: el dominio expresa sus invariantes. -->
+        <dependency>
+            <groupId>com.curso.animalitos</groupId>
+            <artifactId>animalitos-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
 </project> 

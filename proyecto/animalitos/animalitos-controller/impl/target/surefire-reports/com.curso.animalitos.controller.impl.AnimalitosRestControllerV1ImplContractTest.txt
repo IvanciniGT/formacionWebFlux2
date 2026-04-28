@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.curso.animalitos.controller.impl.AnimalitosRestControllerV1ImplContractTest
+-------------------------------------------------------------------------------
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.153 s -- in com.curso.animalitos.controller.impl.AnimalitosRestControllerV1ImplContractTest

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Datos identificativos del proyecto-->
+    <groupId>com.curso.helloworld</groupId>
+    <artifactId>spring-webflux-helloworld</artifactId>
+    <version>1.0.0</version>
+
+    <!-- Modo de construcción --> 
+    <packaging>jar</packaging>
+
+    <!-- Metadatos -->
+    <name>Proyecto de formación de Spring WebFlux - Helloworld</name>
+    <!-- Variables que reusemos en el proyecto-->
+    <properties>
+        <!-- Props para los plugins -->
+        <java.compile.source>17</java.compile.source>
+        <java.compile.target>17</java.compile.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Versiones de las dependencias -->
+        <spring-boot.version>3.5.14</spring-boot.version>
+    </properties>
+
+    <!-- Dependencias del proyecto -->
+    <dependencies>
+        <!-- Spring Boot Starter WebFlux: el starter de Spring Boot para aplicaciones web reactivas -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+    </dependencies>
+
+    <!-- Gestión de dependencias (versiones)-->
+    <dependencyManagement>
+        <!-- Bill of materials para Spring Boot --> 
+        <!-- Solo definimos versiones de librerias, para una versión concreta de Spring Boot -->
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- Plugins -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Plugin de Spring Boot para empaquetar la aplicación y ejecutarla desde maven -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>    
+
+</project> 

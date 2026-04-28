@@ -32,10 +32,9 @@ import static org.mockito.ArgumentMatchers.anyString;
  * con un AnimalitosService mockeado de forma "stateful" via Mockito.
  */
 @WebMvcTest(AnimalitosRestControllerV1Impl.class)
-@Import({AnimalitosRestControllerV1ImplContractIT.MapperConfig.class,
-        AnimalitosControllerExceptionHandler.class,
-        AnimalitosRestControllerV1ImplContractIT.ServiceMockConfig.class})
-class AnimalitosRestControllerV1ImplContractIT extends AnimalitosControllerV1ContractTest {
+@Import({AnimalitosControllerExceptionHandler.class,
+        AnimalitosRestControllerV1ImplContractTest.ServiceMockConfig.class})
+class AnimalitosRestControllerV1ImplContractTest extends AnimalitosControllerV1ContractTest {
 
     @Autowired
     private MockMvc mvc;
@@ -54,15 +53,6 @@ class AnimalitosRestControllerV1ImplContractIT extends AnimalitosControllerV1Con
     @Override
     protected MockMvc mockMvc() {
         return mvc;
-    }
-
-    /** Configura el mapper real (MapStruct lo crea via Mappers.getMapper). */
-    @TestConfiguration
-    static class MapperConfig {
-        @Bean
-        AnimalControllerMapper animalControllerMapper() {
-            return org.mapstruct.factory.Mappers.getMapper(AnimalControllerMapper.class);
-        }
     }
 
     /** Inyecta un AnimalitosService mockeado con estado en memoria. */

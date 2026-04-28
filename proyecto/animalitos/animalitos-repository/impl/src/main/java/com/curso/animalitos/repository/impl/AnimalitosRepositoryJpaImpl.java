@@ -6,6 +6,7 @@ import com.curso.animalitos.repository.api.exceptions.RepositorioException;
 import com.curso.animalitos.repository.impl.entities.AnimalEntity;
 import com.curso.animalitos.repository.impl.mappers.AnimalRepositoryMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,8 +17,14 @@ import java.util.Optional;
  *
  * Hacia fuera exponemos un identificador publico (UUID en formato String).
  * Internamente la PK es un Long autogenerado por la base de datos.
+ *
+ * {@code @Validated} activa method-level validation: las anotaciones
+ * {@code @Valid Animal} / {@code @NotBlank String id} del contrato se
+ * comprueban via proxy AOP. Asi este repo es una barrera adicional aunque
+ * un futuro caller se salte la capa de servicio.
  */
 @Component
+@Validated
 public class AnimalitosRepositoryJpaImpl implements AnimalitosRepository {
 
     private final AnimalEntityJpaRepository jpa;

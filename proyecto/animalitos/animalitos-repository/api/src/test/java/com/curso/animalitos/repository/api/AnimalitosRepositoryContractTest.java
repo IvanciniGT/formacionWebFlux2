@@ -135,4 +135,79 @@ public abstract class AnimalitosRepositoryContractTest {
     void deleteById_devuelveEmpty_siNoExiste() {
         assertThat(repo.deleteById("FANTASMA")).isEmpty();
     }
+
+    // -------------------- datos podridos --------------------
+    //
+    // El repositorio es una BARRERA: aunque la capa de servicio se salte la
+    // validacion (o un futuro caller llame directo al repo), el repo debe
+    // rechazar datos invalidos. No nos atamos a un tipo concreto de
+    // excepcion (cada impl puede traducirla a su gusto), solo exigimos que
+    // la operacion FALLE en lugar de persistir basura.
+
+    @Test
+    void create_rechazaAnimalConNombreInvalido() {
+        assertThatThrownBy(() -> repo.create(new Animal(null, null, "GATO", 3)))
+                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> repo.create(new Animal(null, "", "GATO", 3)))
+                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> repo.create(new Animal(null, "a", "GATO", 3)))
+                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> repo.create(new Animal(null, "x".repeat(61), "GATO", 3)))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    void create_rechazaAnimalConEspecieInvalida() {
+        assertThatThrownBy(() -> repo.create(new Animal(null, "Lucas", null, 3)))
+                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> repo.create(new Animal(null, "Lucas", "DRAGON", 3)))
+                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> repo.create(new Animal(null, "Lucas", "perro", 3)))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    void create_rechazaAnimalConEdadInvalida() {
+        assertThatThrownBy(() -> repo.create(new Animal(null, "Lucas", "GATO", -1)))
+                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> repo.create(new Animal(null, "Lucas", "GATO", 101)))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    void create_noPersisteSiLosDatosSonInvalidos() {
+        // Si el repo lanza al validar, no debe haber dejado nada guardado.
+        try {
+            repo.create(new Animal(null, "x", "DRAGON", 999));
+        } catch (RuntimeException ignorada) {
+            // esperado
+        }
+        assertThat(repo.findAll()).isEmpty();
+    }
+
+    @Test
+    void findById_rechazaIdEnBlanco() {
+        assertThatThrownBy(() -> repo.findById(null))
+                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> repo.findById(""))
+                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> repo.findById("   "))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    void update_rechazaIdEnBlanco() {
+        assertThatThrownBy(() -> repo.update(null, new Animal(null, null, "GATO", 3)))
+                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> repo.update("", new Animal(null, null, "GATO", 3)))
+                .isInstanceOf(RuntimeException.class);
+    }
+
+    @Test
+    void deleteById_rechazaIdEnBlanco() {
+        assertThatThrownBy(() -> repo.deleteById(null))
+                .isInstanceOf(RuntimeException.class);
+        assertThatThrownBy(() -> repo.deleteById(""))
+                .isInstanceOf(RuntimeException.class);
+    }
 }

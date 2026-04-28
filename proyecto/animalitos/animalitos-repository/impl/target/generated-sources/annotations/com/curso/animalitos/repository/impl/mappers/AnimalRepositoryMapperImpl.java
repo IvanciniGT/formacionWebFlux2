@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-04-27T18:57:52+0200",
+    date = "2026-04-28T15:54:00+0200",
     comments = "version: 1.6.3, compiler: javac, environment: Java 25.0.2 (Homebrew)"
 )
 @Component
@@ -22,7 +22,7 @@ public class AnimalRepositoryMapperImpl implements AnimalRepositoryMapper {
         String id = null;
         String nombre = null;
         String especie = null;
-        int edad = 0;
+        Integer edad = null;
 
         id = entity.getPublicId();
         nombre = entity.getNombre();
@@ -44,7 +44,9 @@ public class AnimalRepositoryMapperImpl implements AnimalRepositoryMapper {
 
         animalEntity.setNombre( animal.nombre() );
         animalEntity.setEspecie( animal.especie() );
-        animalEntity.setEdad( animal.edad() );
+        if ( animal.edad() != null ) {
+            animalEntity.setEdad( animal.edad() );
+        }
 
         return animalEntity;
     }
@@ -56,6 +58,8 @@ public class AnimalRepositoryMapperImpl implements AnimalRepositoryMapper {
         }
 
         target.setEspecie( datos.especie() );
-        target.setEdad( datos.edad() );
+        if ( datos.edad() != null ) {
+            target.setEdad( datos.edad() );
+        }
     }
 }
