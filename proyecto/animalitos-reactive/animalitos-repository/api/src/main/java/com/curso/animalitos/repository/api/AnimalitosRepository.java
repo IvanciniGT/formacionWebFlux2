@@ -7,6 +7,9 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Optional;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 /**
  * Contrato CRUD para la capa de persistencia de animales.
  *
@@ -19,15 +22,15 @@ import java.util.Optional;
  */
 public interface AnimalitosRepository {
 
-    Optional<Animal> findById(@NotBlank String id);
+    Mono<Animal> findById(@NotBlank String id);
 
-    List<Animal> findAll();
+    Flux<Animal> findAll();
 
     /**
      * Crea un nuevo animal. El campo {@code id} del parametro se ignora;
      * la persistencia lo genera y lo devuelve relleno en el resultado.
      */
-    Animal create(@Valid Animal datos);
+    Mono<Animal> create(@Valid Animal datos);
 
     /**
      * Modifica especie y edad del animal con el id indicado. El nombre
@@ -35,7 +38,7 @@ public interface AnimalitosRepository {
      * el {@code Animal} entrante NO se valida con {@code @Valid} (el
      * nombre puede llegar a null por contrato).
      */
-    Animal update(@NotBlank String id, Animal datos);
+    Mono<Animal> update(@NotBlank String id, Animal datos);
 
-    Optional<Animal> deleteById(@NotBlank String id);
+    Mono<Animal> deleteById(@NotBlank String id);
 }

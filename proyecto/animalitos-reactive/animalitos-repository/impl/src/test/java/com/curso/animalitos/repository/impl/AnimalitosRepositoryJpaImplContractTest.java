@@ -23,7 +23,7 @@ import org.springframework.context.annotation.ComponentScan;
 class AnimalitosRepositoryJpaImplContractTest extends AnimalitosRepositoryContractTest {
 
     @Autowired
-    private AnimalEntityJpaRepository jpa;
+    private AnimalEntityCrudRepository jpa;
 
     @Autowired
     private AnimalitosRepository repositorio;

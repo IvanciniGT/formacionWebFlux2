@@ -2,6 +2,10 @@ package com.curso.animalitos.repository.api;
 
 import com.curso.animalitos.domain.Animal;
 import com.curso.animalitos.repository.api.exceptions.RepositorioException;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,33 +43,33 @@ public abstract class AnimalitosRepositoryContractTest {
         Animal datos = new Animal(null, "Lucas", "GATO", 3);
 
         // WHEN
-        Animal creado = repo.create(datos);
+        Mono<Animal> creado = repo.create(datos);
 
         // THEN
-        assertThat(creado.id()).isNotBlank();
-        assertThat(creado.nombre()).isEqualTo("Lucas");
-        assertThat(creado.especie()).isEqualTo("GATO");
-        assertThat(creado.edad()).isEqualTo(3);
+        assertThat(creado.block().id()).isNotBlank();
+        assertThat(creado.block().nombre()).isEqualTo("Lucas");
+        assertThat(creado.block().especie()).isEqualTo("GATO");
+        assertThat(creado.block().edad()).isEqualTo(3);
     }
 
     // -------------------- findById --------------------
 
     @Test
     void findById_devuelveEmpty_siNoExiste() {
-        assertThat(repo.findById("INEXISTENTE")).isEmpty();
+        assertThat(repo.findById("INEXISTENTE").block()).isNull();
     }
 
     @Test
     void findById_devuelvePresent_siExiste() {
         // GIVEN
-        Animal creado = repo.create(new Animal(null, "Firulais", "PERRO", 5));
-
+        Mono<Animal> creado = repo.create(new Animal(null, "Firulais", "PERRO", 5));
+        Animal creadoAnimal = creado.block();
         // WHEN
-        Optional<Animal> hallado = repo.findById(creado.id());
+        Mono<Animal> hallado = repo.findById(creadoAnimal.id());
 
         // THEN
-        assertThat(hallado).isPresent();
-        assertThat(hallado.get()).isEqualTo(creado);
+        assertThat(hallado.block()).isNotNull();
+        assertThat(hallado.block()).isEqualTo(creado.block());
     }
 
     // -------------------- findAll --------------------
@@ -78,17 +82,17 @@ public abstract class AnimalitosRepositoryContractTest {
         repo.create(new Animal(null, "Coco", "LORO", 8));
 
         // WHEN
-        List<Animal> todos = repo.findAll();
+        Flux<Animal> todos = repo.findAll();
 
         // THEN
-        assertThat(todos).hasSize(3)
+        assertThat(todos.collectList().block()).hasSize(3)
                 .extracting(Animal::nombre)
                 .containsExactlyInAnyOrder("Lucas", "Firulais", "Coco");
     }
 
     @Test
     void findAll_devuelveListaVacia_siNoHayDatos() {
-        assertThat(repo.findAll()).isEmpty();
+        assertThat(repo.findAll().collectList().block()).isEmpty();
     }
 
     // -------------------- update --------------------
@@ -96,16 +100,16 @@ public abstract class AnimalitosRepositoryContractTest {
     @Test
     void update_modificaEspecieYEdad_yPreservaNombre() {
         // GIVEN
-        Animal creado = repo.create(new Animal(null, "Lucas", "GATO", 3));
+        Mono<Animal> creado = repo.create(new Animal(null, "Lucas", "GATO", 3));
 
         // WHEN: el nombre del DTO de entrada se ignora; solo cambian especie y edad.
-        Animal modificado = repo.update(creado.id(), new Animal(null, "IGNORADO", "PERRO", 7));
+        Mono<Animal> modificado = repo.update(creado.block().id(), new Animal(null, "IGNORADO", "PERRO", 7));
 
         // THEN
-        assertThat(modificado.id()).isEqualTo(creado.id());
-        assertThat(modificado.nombre()).isEqualTo("Lucas");
-        assertThat(modificado.especie()).isEqualTo("PERRO");
-        assertThat(modificado.edad()).isEqualTo(7);
+        assertThat(modificado.block().id()).isEqualTo(creado.block().id());
+        assertThat(modificado.block().nombre()).isEqualTo("Lucas");
+        assertThat(modificado.block().especie()).isEqualTo("PERRO");
+        assertThat(modificado.block().edad()).isEqualTo(7);
     }
 
     @Test
@@ -121,19 +125,19 @@ public abstract class AnimalitosRepositoryContractTest {
     @Test
     void deleteById_devuelveAnimalEliminado_yLoQuita() {
         // GIVEN
-        Animal creado = repo.create(new Animal(null, "Lucas", "GATO", 3));
+        Mono<Animal> creado = repo.create(new Animal(null, "Lucas", "GATO", 3));
 
         // WHEN
-        Optional<Animal> borrado = repo.deleteById(creado.id());
+        Mono<Animal> borrado = repo.deleteById(creado.block().id());
 
         // THEN
-        assertThat(borrado).isPresent().contains(creado);
-        assertThat(repo.findById(creado.id())).isEmpty();
+        assertThat(borrado.block()).isEqualTo(creado.block());
+        assertThat(repo.findById(creado.block().id()).block()).isNull();
     }
 
     @Test
     void deleteById_devuelveEmpty_siNoExiste() {
-        assertThat(repo.deleteById("FANTASMA")).isEmpty();
+        assertThat(repo.deleteById("FANTASMA").block()).isNull();
     }
 
     // -------------------- datos podridos --------------------
@@ -182,7 +186,7 @@ public abstract class AnimalitosRepositoryContractTest {
         } catch (RuntimeException ignorada) {
             // esperado
         }
-        assertThat(repo.findAll()).isEmpty();
+        assertThat(repo.findAll().collectList().block()).isEmpty();
     }
 
     @Test

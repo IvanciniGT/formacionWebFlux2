@@ -8,8 +8,9 @@ import com.curso.animalitos.repository.impl.mappers.AnimalRepositoryMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
-import java.util.Optional;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Implementacion JPA del repositorio.
@@ -27,47 +28,55 @@ import java.util.Optional;
 @Validated
 public class AnimalitosRepositoryJpaImpl implements AnimalitosRepository {
 
-    private final AnimalEntityJpaRepository jpa;
+    private final AnimalEntityCrudRepository internalRepository;
     private final AnimalRepositoryMapper mapper;
 
-    public AnimalitosRepositoryJpaImpl(AnimalEntityJpaRepository jpa, AnimalRepositoryMapper mapper) {
-        this.jpa = jpa;
+    public AnimalitosRepositoryJpaImpl(AnimalEntityCrudRepository internalRepository, AnimalRepositoryMapper mapper) {
+        this.internalRepository = internalRepository;
         this.mapper = mapper;
     }
 
     @Override
-    public Optional<Animal> findById(String id) {
-        return jpa.findByPublicId(id).map(mapper::entityToDomain);
+    public Mono<Animal> findById(String id) {
+        return internalRepository.findByPublicId(id)
+                                 .map(mapper::entityToDomain);
     }
 
     @Override
-    public List<Animal> findAll() {
-        return jpa.findAll().stream().map(mapper::entityToDomain).toList();
+    public Flux<Animal> findAll() {
+        return internalRepository.findAll()
+                                 .map(mapper::entityToDomain);
     }
 
     @Override
-    public Animal create(Animal datos) {
+    public Mono<Animal> create(Animal datos) {
         AnimalEntity entity = mapper.domainToEntity(datos);
-        // El publicId ya viene inicializado por defecto (UUID) en el entity.
-        // El id (PK Long) lo genera la base de datos.
-        AnimalEntity guardado = jpa.save(entity);
-        return mapper.entityToDomain(guardado);
+        return internalRepository.save(entity)
+                                 .map(mapper::entityToDomain);
     }
 
     @Override
-    public Animal update(String id, Animal datos) {
-        AnimalEntity entity = jpa.findByPublicId(id)
-                .orElseThrow(() -> new RepositorioException(
-                        "No existe animal con id " + id,
-                        RepositorioException.TipoDeError.ANIMAL_NO_ENCONTRADO));
-        mapper.aplicarModificaciones(datos, entity);
-        return mapper.entityToDomain(jpa.save(entity));
+    public Mono<Animal> update(String id, Animal nuevosDatos) {
+        return internalRepository.findByPublicId(id)          // Potencial AnimalEntity
+
+                                .switchIfEmpty(Mono.error(() -> new RepositorioException(    // Si no viene.. cuando sea que venga, que se cambie por un error
+                                                                     "No existe animal con id " + id,
+                                                                    RepositorioException.TipoDeError.ANIMAL_NO_ENCONTRADO)))
+                                .map(animalPersistido -> {                                                   // Si viene:
+                                                                mapper.aplicarModificaciones(nuevosDatos, animalPersistido);                     // Le moddifico los datos.
+                                                                return animalPersistido;
+                                                       })
+                                .flatMap(internalRepository::save)
+                                .map(mapper::entityToDomain);
+
+                                // reactive STREAMS
+                                // STREAM: Flujo  de procesamiento de datos . 
+                                //.        Esto es purita programación funcional MAP-REDUCE
     }
 
     @Override
-    public Optional<Animal> deleteById(String id) {
-        Optional<AnimalEntity> entity = jpa.findByPublicId(id);
-        entity.ifPresent(jpa::delete);
-        return entity.map(mapper::entityToDomain);
+    public Mono<Animal> deleteById(String id) {
+        return internalRepository.findByPublicId(id)
+                                 .flatMap(e -> internalRepository.delete(e).thenReturn(mapper.entityToDomain(e)));
     }
 }

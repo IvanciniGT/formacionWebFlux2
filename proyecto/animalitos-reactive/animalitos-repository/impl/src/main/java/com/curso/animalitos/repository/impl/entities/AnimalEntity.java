@@ -1,9 +1,5 @@
 package com.curso.animalitos.repository.impl.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,10 +7,11 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
+
 @Table(name = "ANIMALITOS")
 @Getter
 @Setter
@@ -23,21 +20,20 @@ import jakarta.persistence.GenerationType;
 public class AnimalEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID", nullable = false, length = 64)
+    @Column("ID")
 
     private Long id;
 
-    @Column(name = "PUBLIC_ID", nullable = false, length = 64)
+    @Column("PUBLIC_ID")
     private String publicId = UUID.randomUUID().toString();
 
-    @Column(name = "NOMBRE", nullable = false, length = 60)
+    @Column("NOMBRE")
     private String nombre;
 
-    @Column(name = "ESPECIE", nullable = false, length = 30)
+    @Column("ESPECIE")
     private String especie;
 
-    @Column(name = "EDAD", nullable = false)
+    @Column("EDAD")
     private int edad;
 
 }

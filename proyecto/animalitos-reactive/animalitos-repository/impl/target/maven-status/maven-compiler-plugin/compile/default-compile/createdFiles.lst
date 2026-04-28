@@ -2,4 +2,4 @@ com/curso/animalitos/repository/impl/entities/AnimalEntity.class
 com/curso/animalitos/repository/impl/mappers/AnimalRepositoryMapperImpl.class
 com/curso/animalitos/repository/impl/mappers/AnimalRepositoryMapper.class
 com/curso/animalitos/repository/impl/AnimalitosRepositoryJpaImpl.class
-com/curso/animalitos/repository/impl/AnimalEntityJpaRepository.class
+com/curso/animalitos/repository/impl/AnimalEntityCrudRepository.class
