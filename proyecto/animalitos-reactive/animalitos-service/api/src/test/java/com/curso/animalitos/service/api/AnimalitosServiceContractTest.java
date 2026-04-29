@@ -7,18 +7,22 @@ import com.curso.animalitos.service.api.models.CrearAnimalDTO;
 import com.curso.animalitos.service.api.models.ModificarAnimalDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * Contrato (caja negra) que cualquier {@link AnimalitosService} debe cumplir.
+ * Contrato (caja negra) que cualquier {@link AnimalitosService} reactivo debe cumplir.
  *
  * Las clases concretas en *impl* deben extender esta clase y devolver una
  * instancia de servicio recien creada y limpia en {@link #crearServicio()}.
+ *
+ * Se usa {@code .block()} para materializar los flujos en cada test, en linea
+ * con el contrato del repositorio. Los errores se comprueban suscribiendose
+ * (block()) a un Mono que se sabe fallido.
  */
 public abstract class AnimalitosServiceContractTest {
 
@@ -35,8 +39,9 @@ public abstract class AnimalitosServiceContractTest {
 
     @Test
     void createAnimal_devuelveAnimalConIdGenerado() {
-        AnimalDTO creado = service.createAnimal(new CrearAnimalDTO("Lucas", "GATO", 3));
+        AnimalDTO creado = service.createAnimal(new CrearAnimalDTO("Lucas", "GATO", 3)).block();
 
+        assertThat(creado).isNotNull();
         assertThat(creado.id()).isNotBlank();
         assertThat(creado.nombre()).isEqualTo("Lucas");
         assertThat(creado.especie()).isEqualTo("GATO");
@@ -45,9 +50,10 @@ public abstract class AnimalitosServiceContractTest {
 
     @Test
     void createAnimal_lanzaYaExiste_siNombreRepetido() {
-        service.createAnimal(new CrearAnimalDTO("Lucas", "GATO", 3));
+        service.createAnimal(new CrearAnimalDTO("Lucas", "GATO", 3)).block();
 
-        assertThatThrownBy(() -> service.createAnimal(new CrearAnimalDTO("Lucas", "PERRO", 5)))
+        Mono<AnimalDTO> repetido = service.createAnimal(new CrearAnimalDTO("Lucas", "PERRO", 5));
+        assertThatThrownBy(repetido::block)
                 .isInstanceOf(AnimalYaExisteException.class);
     }
 
@@ -55,26 +61,26 @@ public abstract class AnimalitosServiceContractTest {
 
     @Test
     void getAnimal_devuelvePresent_siExiste() {
-        AnimalDTO creado = service.createAnimal(new CrearAnimalDTO("Firulais", "PERRO", 5));
+        AnimalDTO creado = service.createAnimal(new CrearAnimalDTO("Firulais", "PERRO", 5)).block();
 
-        Optional<AnimalDTO> hallado = service.getAnimal(creado.id());
+        AnimalDTO hallado = service.getAnimal(creado.id()).block();
 
-        assertThat(hallado).isPresent().contains(creado);
+        assertThat(hallado).isEqualTo(creado);
     }
 
     @Test
     void getAnimal_devuelveEmpty_siNoExiste() {
-        assertThat(service.getAnimal("INEXISTENTE")).isEmpty();
+        assertThat(service.getAnimal("INEXISTENTE").block()).isNull();
     }
 
     // -------------------- getAllAnimales --------------------
 
     @Test
     void getAllAnimales_devuelveTodos() {
-        service.createAnimal(new CrearAnimalDTO("Lucas", "GATO", 3));
-        service.createAnimal(new CrearAnimalDTO("Firulais", "PERRO", 5));
+        service.createAnimal(new CrearAnimalDTO("Lucas", "GATO", 3)).block();
+        service.createAnimal(new CrearAnimalDTO("Firulais", "PERRO", 5)).block();
 
-        List<AnimalDTO> todos = service.getAllAnimales();
+        List<AnimalDTO> todos = service.getAllAnimales().collectList().block();
 
         assertThat(todos).hasSize(2)
                 .extracting(AnimalDTO::nombre)
@@ -83,16 +89,16 @@ public abstract class AnimalitosServiceContractTest {
 
     @Test
     void getAllAnimales_devuelveListaVacia_siNoHayDatos() {
-        assertThat(service.getAllAnimales()).isEmpty();
+        assertThat(service.getAllAnimales().collectList().block()).isEmpty();
     }
 
     // -------------------- updateAnimal --------------------
 
     @Test
     void updateAnimal_modificaEspecieYEdad() {
-        AnimalDTO creado = service.createAnimal(new CrearAnimalDTO("Lucas", "GATO", 3));
+        AnimalDTO creado = service.createAnimal(new CrearAnimalDTO("Lucas", "GATO", 3)).block();
 
-        AnimalDTO modificado = service.updateAnimal(creado.id(), new ModificarAnimalDTO("PERRO", 7));
+        AnimalDTO modificado = service.updateAnimal(creado.id(), new ModificarAnimalDTO("PERRO", 7)).block();
 
         assertThat(modificado.id()).isEqualTo(creado.id());
         assertThat(modificado.nombre()).isEqualTo("Lucas");
@@ -102,7 +108,8 @@ public abstract class AnimalitosServiceContractTest {
 
     @Test
     void updateAnimal_lanzaNoEncontrado_siIdNoExiste() {
-        assertThatThrownBy(() -> service.updateAnimal("FANTASMA", new ModificarAnimalDTO("GATO", 1)))
+        Mono<AnimalDTO> mono = service.updateAnimal("FANTASMA", new ModificarAnimalDTO("GATO", 1));
+        assertThatThrownBy(mono::block)
                 .isInstanceOf(AnimalNoEncontradoException.class);
     }
 
@@ -110,16 +117,16 @@ public abstract class AnimalitosServiceContractTest {
 
     @Test
     void deleteAnimal_devuelvePresent_yLoQuita() {
-        AnimalDTO creado = service.createAnimal(new CrearAnimalDTO("Lucas", "GATO", 3));
+        AnimalDTO creado = service.createAnimal(new CrearAnimalDTO("Lucas", "GATO", 3)).block();
 
-        Optional<AnimalDTO> borrado = service.deleteAnimal(creado.id());
+        AnimalDTO borrado = service.deleteAnimal(creado.id()).block();
 
-        assertThat(borrado).isPresent().contains(creado);
-        assertThat(service.getAnimal(creado.id())).isEmpty();
+        assertThat(borrado).isEqualTo(creado);
+        assertThat(service.getAnimal(creado.id()).block()).isNull();
     }
 
     @Test
     void deleteAnimal_devuelveEmpty_siNoExiste() {
-        assertThat(service.deleteAnimal("FANTASMA")).isEmpty();
+        assertThat(service.deleteAnimal("FANTASMA").block()).isNull();
     }
 }

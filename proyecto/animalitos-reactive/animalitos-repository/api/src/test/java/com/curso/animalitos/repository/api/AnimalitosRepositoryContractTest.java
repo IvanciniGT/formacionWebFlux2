@@ -9,9 +9,6 @@ import reactor.core.publisher.Mono;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -42,14 +39,15 @@ public abstract class AnimalitosRepositoryContractTest {
         // GIVEN datos de creacion validos (sin id)
         Animal datos = new Animal(null, "Lucas", "GATO", 3);
 
-        // WHEN
-        Mono<Animal> creado = repo.create(datos);
+        // WHEN: ojo, hay que materializar UNA SOLA VEZ. Cada block() vuelve a
+        // suscribirse al Mono y dispara un nuevo INSERT.
+        Animal creado = repo.create(datos).block();
 
         // THEN
-        assertThat(creado.block().id()).isNotBlank();
-        assertThat(creado.block().nombre()).isEqualTo("Lucas");
-        assertThat(creado.block().especie()).isEqualTo("GATO");
-        assertThat(creado.block().edad()).isEqualTo(3);
+        assertThat(creado.id()).isNotBlank();
+        assertThat(creado.nombre()).isEqualTo("Lucas");
+        assertThat(creado.especie()).isEqualTo("GATO");
+        assertThat(creado.edad()).isEqualTo(3);
     }
 
     // -------------------- findById --------------------
@@ -62,24 +60,24 @@ public abstract class AnimalitosRepositoryContractTest {
     @Test
     void findById_devuelvePresent_siExiste() {
         // GIVEN
-        Mono<Animal> creado = repo.create(new Animal(null, "Firulais", "PERRO", 5));
-        Animal creadoAnimal = creado.block();
+        Animal creado = repo.create(new Animal(null, "Firulais", "PERRO", 5)).block();
+
         // WHEN
-        Mono<Animal> hallado = repo.findById(creadoAnimal.id());
+        Animal hallado = repo.findById(creado.id()).block();
 
         // THEN
-        assertThat(hallado.block()).isNotNull();
-        assertThat(hallado.block()).isEqualTo(creado.block());
+        assertThat(hallado).isNotNull();
+        assertThat(hallado).isEqualTo(creado);
     }
 
     // -------------------- findAll --------------------
 
     @Test
     void findAll_devuelveTodos() {
-        // GIVEN
-        repo.create(new Animal(null, "Lucas", "GATO", 3));
-        repo.create(new Animal(null, "Firulais", "PERRO", 5));
-        repo.create(new Animal(null, "Coco", "LORO", 8));
+        // GIVEN: en reactivo, sin block()/subscribe() NADA se ejecuta.
+        repo.create(new Animal(null, "Lucas", "GATO", 3)).block();
+        repo.create(new Animal(null, "Firulais", "PERRO", 5)).block();
+        repo.create(new Animal(null, "Coco", "LORO", 8)).block();
 
         // WHEN
         Flux<Animal> todos = repo.findAll();
@@ -100,21 +98,23 @@ public abstract class AnimalitosRepositoryContractTest {
     @Test
     void update_modificaEspecieYEdad_yPreservaNombre() {
         // GIVEN
-        Mono<Animal> creado = repo.create(new Animal(null, "Lucas", "GATO", 3));
+        Animal creado = repo.create(new Animal(null, "Lucas", "GATO", 3)).block();
 
         // WHEN: el nombre del DTO de entrada se ignora; solo cambian especie y edad.
-        Mono<Animal> modificado = repo.update(creado.block().id(), new Animal(null, "IGNORADO", "PERRO", 7));
+        Animal modificado = repo.update(creado.id(), new Animal(null, "IGNORADO", "PERRO", 7)).block();
 
         // THEN
-        assertThat(modificado.block().id()).isEqualTo(creado.block().id());
-        assertThat(modificado.block().nombre()).isEqualTo("Lucas");
-        assertThat(modificado.block().especie()).isEqualTo("PERRO");
-        assertThat(modificado.block().edad()).isEqualTo(7);
+        assertThat(modificado.id()).isEqualTo(creado.id());
+        assertThat(modificado.nombre()).isEqualTo("Lucas");
+        assertThat(modificado.especie()).isEqualTo("PERRO");
+        assertThat(modificado.edad()).isEqualTo(7);
     }
 
     @Test
     void update_lanzaNoEncontrado_siIdNoExiste() {
-        assertThatThrownBy(() -> repo.update("FANTASMA", new Animal(null, null, "GATO", 1)))
+        // En reactivo el error solo se materializa al subscribir (block()).
+        Mono<Animal> mono = repo.update("FANTASMA", new Animal(null, null, "GATO", 1));
+        assertThatThrownBy(mono::block)
                 .isInstanceOf(RepositorioException.class)
                 .extracting("tipoDeError")
                 .isEqualTo(RepositorioException.TipoDeError.ANIMAL_NO_ENCONTRADO);
@@ -125,14 +125,14 @@ public abstract class AnimalitosRepositoryContractTest {
     @Test
     void deleteById_devuelveAnimalEliminado_yLoQuita() {
         // GIVEN
-        Mono<Animal> creado = repo.create(new Animal(null, "Lucas", "GATO", 3));
+        Animal creado = repo.create(new Animal(null, "Lucas", "GATO", 3)).block();
 
         // WHEN
-        Mono<Animal> borrado = repo.deleteById(creado.block().id());
+        Animal borrado = repo.deleteById(creado.id()).block();
 
         // THEN
-        assertThat(borrado.block()).isEqualTo(creado.block());
-        assertThat(repo.findById(creado.block().id()).block()).isNull();
+        assertThat(borrado).isEqualTo(creado);
+        assertThat(repo.findById(creado.id()).block()).isNull();
     }
 
     @Test

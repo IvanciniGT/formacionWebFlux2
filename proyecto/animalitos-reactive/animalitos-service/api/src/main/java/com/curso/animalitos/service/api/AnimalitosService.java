@@ -6,13 +6,20 @@ import com.curso.animalitos.service.api.models.ModificarAnimalDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
- * Contrato de la capa de servicio.
+ * Contrato reactivo de la capa de servicio.
  *
- * Lanza:
+ * Senales reactivas:
+ *  - getAnimal:        Mono<AnimalDTO> vacio si no existe (Mono.empty()).
+ *  - getAllAnimales:   Flux<AnimalDTO> (vacio si no hay datos).
+ *  - createAnimal:     Mono<AnimalDTO> con el animal creado.
+ *  - updateAnimal:     Mono<AnimalDTO> con el animal modificado.
+ *  - deleteAnimal:     Mono<AnimalDTO> con el animal borrado, o vacio si no existe.
+ *
+ * Errores que se materializan en el Mono/Flux (Mono.error / Flux.error):
  *  - AnimalNoEncontradoException     en update si no existe el id
  *  - AnimalYaExisteException         en create si el nombre ya esta usado
  *  - DatosInvalidosException         en create/update si los datos no son validos
@@ -20,13 +27,13 @@ import java.util.Optional;
  */
 public interface AnimalitosService {
 
-    Optional<AnimalDTO> getAnimal(@NotBlank String id);
+    Mono<AnimalDTO> getAnimal(@NotBlank String id);
 
-    List<AnimalDTO> getAllAnimales();
+    Flux<AnimalDTO> getAllAnimales();
 
-    AnimalDTO createAnimal(@Valid CrearAnimalDTO datos);
+    Mono<AnimalDTO> createAnimal(@Valid CrearAnimalDTO datos);
 
-    AnimalDTO updateAnimal(@NotBlank String id, @Valid ModificarAnimalDTO datos);
+    Mono<AnimalDTO> updateAnimal(@NotBlank String id, @Valid ModificarAnimalDTO datos);
 
-    Optional<AnimalDTO> deleteAnimal(@NotBlank String id);
+    Mono<AnimalDTO> deleteAnimal(@NotBlank String id);
 }

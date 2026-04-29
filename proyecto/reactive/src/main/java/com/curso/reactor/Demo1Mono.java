@@ -7,18 +7,24 @@ import reactor.core.publisher.Mono;
 /*
 Inicio del programa
 Llamo a la función que me devuelve un Mono...
+
+
 Tiempo que tardo en obtener el Mono: 31 milisegundos   // El Mono no tarda nada en ejecutarse!
 Hago otras cosas mientras tanto que tardan un rato...
 Hago otras cosas más...
 Tiempo que tardo en llegar a la parte de obtener el valor del Mono: 2036 milisegundos
 Tiempo total que tardo en obtener el valor del Mono: 7040 milisegundos
+
+
+
+
 Valor del Mono: 6225153523681
 */
 public class Demo1Mono {
     
 
     public static void main(String[] args) {
-        System.out.println("Inicio del programa");
+        System.out.println("Inicio del programa. Soy el hilo: " + Thread.currentThread().getName() );
         
         System.out.println("Llamo a la función que me devuelve un Mono...");
         
@@ -80,6 +86,22 @@ public class Demo1Mono {
         // Eso ya habrá un hilo que se encargue de ejecutar esa función... 
         // La gestión de esos hilos ejecutores la hace el projecto Reactor... nosotros no tenemos que preocuparnos de eso...
 
+
+        // Aquñi la gracia es que puedo hacer cosas mientras.
+        System.out.println("Hago otras cosas mientras tanto que tardan un rato...");
+        tardoMuchoEnHacerAlgo(2000);
+
+        // Aquñi la gracia es que puedo hacer cosas mientras.
+        System.out.println("Hago otras cosas mientras tanto que tardan un rato...");
+        tardoMuchoEnHacerAlgo(2000);
+
+        // Aquñi la gracia es que puedo hacer cosas mientras.
+        System.out.println("Hago otras cosas mientras tanto que tardan un rato...");
+        tardoMuchoEnHacerAlgo(2000);
+
+        // Aquñi la gracia es que puedo hacer cosas mientras.
+        System.out.println("Hago otras cosas mientras tanto que tardan un rato...");
+        tardoMuchoEnHacerAlgo(2000);
 
         // Aquñi la gracia es que puedo hacer cosas mientras.
         System.out.println("Hago otras cosas mientras tanto que tardan un rato...");

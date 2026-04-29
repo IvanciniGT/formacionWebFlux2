@@ -2,7 +2,6 @@ package com.curso.animalitos.controller.impl;
 
 import com.curso.animalitos.controller.api.AnimalitosControllerV1ContractTest;
 import com.curso.animalitos.controller.impl.advice.AnimalitosControllerExceptionHandler;
-import com.curso.animalitos.controller.impl.mappers.AnimalControllerMapper;
 import com.curso.animalitos.service.api.AnimalitosService;
 import com.curso.animalitos.service.api.exceptions.AnimalNoEncontradoException;
 import com.curso.animalitos.service.api.exceptions.AnimalYaExisteException;
@@ -12,32 +11,33 @@ import com.curso.animalitos.service.api.models.ModificarAnimalDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 
 /**
- * Ejecuta el contrato REST del controller (caja negra) sobre la implementacion real,
- * con un AnimalitosService mockeado de forma "stateful" via Mockito.
+ * Ejecuta el contrato REST del controller (caja negra) sobre la implementacion
+ * REACTIVA, con un AnimalitosService mockeado de forma "stateful" via Mockito
+ * que devuelve Mono/Flux.
  */
-@WebMvcTest(AnimalitosRestControllerV1Impl.class)
+@WebFluxTest(AnimalitosRestControllerV1Impl.class)
 @Import({AnimalitosControllerExceptionHandler.class,
         AnimalitosRestControllerV1ImplContractTest.ServiceMockConfig.class})
 class AnimalitosRestControllerV1ImplContractTest extends AnimalitosControllerV1ContractTest {
 
     @Autowired
-    private MockMvc mvc;
+    private WebTestClient webTestClient;
 
     @Autowired
     private AnimalitosService service;
@@ -51,11 +51,11 @@ class AnimalitosRestControllerV1ImplContractTest extends AnimalitosControllerV1C
     }
 
     @Override
-    protected MockMvc mockMvc() {
-        return mvc;
+    protected WebTestClient webTestClient() {
+        return webTestClient;
     }
 
-    /** Inyecta un AnimalitosService mockeado con estado en memoria. */
+    /** Inyecta un AnimalitosService reactivo mockeado con estado en memoria. */
     @TestConfiguration
     static class ServiceMockConfig {
         @Bean
@@ -68,33 +68,48 @@ class AnimalitosRestControllerV1ImplContractTest extends AnimalitosControllerV1C
             AnimalitosService mock = Mockito.mock(AnimalitosService.class);
 
             Mockito.when(mock.getAnimal(anyString())).thenAnswer(inv ->
-                    Optional.ofNullable(store.get((String) inv.getArgument(0))));
+                    Mono.defer(() -> {
+                        AnimalDTO a = store.get((String) inv.getArgument(0));
+                        return a == null ? Mono.empty() : Mono.just(a);
+                    }));
 
-            Mockito.when(mock.getAllAnimales()).thenAnswer(inv -> List.copyOf(store.values()));
+            Mockito.when(mock.getAllAnimales()).thenAnswer(inv ->
+                    Flux.defer(() -> Flux.fromIterable(store.values())));
 
             Mockito.when(mock.createAnimal(any(CrearAnimalDTO.class))).thenAnswer(inv -> {
                 CrearAnimalDTO datos = inv.getArgument(0);
-                boolean yaExiste = store.values().stream()
-                        .anyMatch(a -> a.nombre().equalsIgnoreCase(datos.nombre()));
-                if (yaExiste) throw new AnimalYaExisteException(datos.nombre());
-                String id = UUID.randomUUID().toString();
-                AnimalDTO creado = new AnimalDTO(id, datos.nombre(), datos.especie(), datos.edad());
-                store.put(id, creado);
-                return creado;
+                return Mono.defer(() -> {
+                    boolean yaExiste = store.values().stream()
+                            .anyMatch(a -> a.nombre().equalsIgnoreCase(datos.nombre()));
+                    if (yaExiste) {
+                        return Mono.error(new AnimalYaExisteException(datos.nombre()));
+                    }
+                    String id = UUID.randomUUID().toString();
+                    AnimalDTO creado = new AnimalDTO(id, datos.nombre(), datos.especie(), datos.edad());
+                    store.put(id, creado);
+                    return Mono.just(creado);
+                });
             });
 
             Mockito.when(mock.updateAnimal(anyString(), any(ModificarAnimalDTO.class))).thenAnswer(inv -> {
                 String id = inv.getArgument(0);
                 ModificarAnimalDTO datos = inv.getArgument(1);
-                AnimalDTO actual = store.get(id);
-                if (actual == null) throw new AnimalNoEncontradoException(id);
-                AnimalDTO modificado = new AnimalDTO(actual.id(), actual.nombre(), datos.especie(), datos.edad());
-                store.put(id, modificado);
-                return modificado;
+                return Mono.defer(() -> {
+                    AnimalDTO actual = store.get(id);
+                    if (actual == null) {
+                        return Mono.error(new AnimalNoEncontradoException(id));
+                    }
+                    AnimalDTO modificado = new AnimalDTO(actual.id(), actual.nombre(), datos.especie(), datos.edad());
+                    store.put(id, modificado);
+                    return Mono.just(modificado);
+                });
             });
 
             Mockito.when(mock.deleteAnimal(anyString())).thenAnswer(inv ->
-                    Optional.ofNullable(store.remove((String) inv.getArgument(0))));
+                    Mono.defer(() -> {
+                        AnimalDTO eliminado = store.remove((String) inv.getArgument(0));
+                        return eliminado == null ? Mono.empty() : Mono.just(eliminado);
+                    }));
 
             return mock;
         }

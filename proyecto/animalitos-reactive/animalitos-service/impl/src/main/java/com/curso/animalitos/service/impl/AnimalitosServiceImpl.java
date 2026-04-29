@@ -12,18 +12,21 @@ import com.curso.animalitos.service.api.models.ModificarAnimalDTO;
 import com.curso.animalitos.service.impl.mappers.AnimalServiceMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-
-import java.util.List;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
- * Implementacion de la capa de servicio.
+ * Implementacion reactiva de la capa de servicio.
  * Inyeccion por constructor (dia2).
  *
  * {@code @Validated} activa method-level validation: las anotaciones
  * {@code @Valid}/{@code @NotBlank}/etc del contrato del servicio se
  * comprueban con un proxy AOP y disparan {@code ConstraintViolationException}
  * si los datos no son validos, sin necesidad de pasar por la capa controlador.
+ *
+ * Las excepciones tecnicas del repositorio ({@link RepositorioException}) se
+ * traducen, dentro del flujo reactivo (con {@code onErrorMap}), a las
+ * excepciones publicas del contrato del servicio.
  */
 @Service
 @Validated
@@ -38,58 +41,44 @@ public class AnimalitosServiceImpl implements AnimalitosService {
     }
 
     @Override
-    public Optional<AnimalDTO> getAnimal(String id) {
-        try {
-            return repository.findById(id).map(mapper::domainToService);
-        } catch (RepositorioException ex) {
-            throw traducir(ex);
-        }
+    public Mono<AnimalDTO> getAnimal(String id) {
+        return repository.findById(id)
+                         .map(mapper::domainToService)
+                         .onErrorMap(RepositorioException.class, ex -> traducir(ex, id));
     }
 
     @Override
-    public List<AnimalDTO> getAllAnimales() {
-        try {
-            return repository.findAll().stream().map(mapper::domainToService).toList();
-        } catch (RepositorioException ex) {
-            throw traducir(ex);
-        }
+    public Flux<AnimalDTO> getAllAnimales() {
+        return repository.findAll()
+                         .map(mapper::domainToService)
+                         .onErrorMap(RepositorioException.class, ex -> traducir(ex, null));
     }
 
     @Override
-    public AnimalDTO createAnimal(CrearAnimalDTO datos) {
+    public Mono<AnimalDTO> createAnimal(CrearAnimalDTO datos) {
         // Comprueba unicidad por nombre (politica de la capa de servicio).
-        boolean yaExiste = repository.findAll().stream()
-                .anyMatch(a -> a.nombre().equalsIgnoreCase(datos.nombre()));
-        if (yaExiste) {
-            throw new AnimalYaExisteException(datos.nombre());
-        }
-        try {
-            return mapper.domainToService(repository.create(mapper.serviceCrearToDomain(datos)));
-        } catch (RepositorioException ex) {
-            throw traducir(ex);
-        }
+        return repository.findAll()
+                         .filter(a -> a.nombre().equalsIgnoreCase(datos.nombre()))
+                         .hasElements()
+                         .flatMap(yaExiste -> yaExiste
+                                 ? Mono.<AnimalDTO>error(new AnimalYaExisteException(datos.nombre()))
+                                 : repository.create(mapper.serviceCrearToDomain(datos))
+                                             .map(mapper::domainToService))
+                         .onErrorMap(RepositorioException.class, ex -> traducir(ex, null));
     }
 
     @Override
-    public AnimalDTO updateAnimal(String id, ModificarAnimalDTO datos) {
-        try {
-            return mapper.domainToService(repository.update(id, mapper.serviceModificarToDomain(datos)));
-        } catch (RepositorioException ex) {
-            throw traducir(ex, id);
-        }
+    public Mono<AnimalDTO> updateAnimal(String id, ModificarAnimalDTO datos) {
+        return repository.update(id, mapper.serviceModificarToDomain(datos))
+                         .map(mapper::domainToService)
+                         .onErrorMap(RepositorioException.class, ex -> traducir(ex, id));
     }
 
     @Override
-    public Optional<AnimalDTO> deleteAnimal(String id) {
-        try {
-            return repository.deleteById(id).map(mapper::domainToService);
-        } catch (RepositorioException ex) {
-            throw traducir(ex);
-        }
-    }
-
-    private RuntimeException traducir(RepositorioException ex) {
-        return traducir(ex, null);
+    public Mono<AnimalDTO> deleteAnimal(String id) {
+        return repository.deleteById(id)
+                         .map(mapper::domainToService)
+                         .onErrorMap(RepositorioException.class, ex -> traducir(ex, id));
     }
 
     private RuntimeException traducir(RepositorioException ex, String idContexto) {

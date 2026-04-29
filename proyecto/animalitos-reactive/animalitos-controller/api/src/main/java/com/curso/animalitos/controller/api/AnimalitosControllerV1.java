@@ -20,13 +20,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
- * Contrato REST v1 para Animales. Es el contrato PUBLICO de la capa de
- * controlador: se documenta con OpenAPI (springdoc) y se publica como
- * artefacto reutilizable.
+ * Contrato REST v1 reactivo para Animales. Es el contrato PUBLICO de la
+ * capa de controlador: se documenta con OpenAPI (springdoc) y se publica
+ * como artefacto reutilizable.
+ *
+ * Tipos reactivos:
+ *  - Mono<ResponseEntity<...>> para respuestas individuales (permite
+ *    decidir el status code).
+ *  - Flux<AnimalRestDTO>       para listados (status 200 implicito).
  */
 @Tag(name = "Animalitos", description = "API CRUD de animalitos. Identificadores publicos en formato UUID.")
 @RequestMapping("/api/v1/animalitos")
@@ -43,7 +48,7 @@ public interface AnimalitosControllerV1 {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @GetMapping("/{id}")
-    ResponseEntity<AnimalRestDTO> getAnimal(
+    Mono<ResponseEntity<AnimalRestDTO>> getAnimal(
             @Parameter(description = "Identificador publico (UUID) del animal", example = "5b3f1d2a-7c0d-4d8a-9b8e-2c6c1f0aafee")
             @PathVariable String id);
 
@@ -53,7 +58,7 @@ public interface AnimalitosControllerV1 {
     )
     @ApiResponse(responseCode = "200", description = "Coleccion de animales (puede ser vacia)")
     @GetMapping
-    ResponseEntity<List<AnimalRestDTO>> getAllAnimales();
+    Flux<AnimalRestDTO> getAllAnimales();
 
     @Operation(
             summary = "Crear un animal",
@@ -68,7 +73,7 @@ public interface AnimalitosControllerV1 {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PostMapping
-    ResponseEntity<AnimalRestDTO> createAnimal(@RequestBody @Valid CrearAnimalRequestDTO datos);
+    Mono<ResponseEntity<AnimalRestDTO>> createAnimal(@RequestBody @Valid CrearAnimalRequestDTO datos);
 
     @Operation(
             summary = "Modificar un animal",
@@ -83,7 +88,7 @@ public interface AnimalitosControllerV1 {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @PutMapping("/{id}")
-    ResponseEntity<AnimalRestDTO> updateAnimal(
+    Mono<ResponseEntity<AnimalRestDTO>> updateAnimal(
             @Parameter(description = "Identificador publico (UUID) del animal a modificar")
             @PathVariable String id,
             @RequestBody @Valid ModificarAnimalRequestDTO datos);
@@ -99,7 +104,7 @@ public interface AnimalitosControllerV1 {
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @DeleteMapping("/{id}")
-    ResponseEntity<AnimalRestDTO> deleteAnimal(
+    Mono<ResponseEntity<AnimalRestDTO>> deleteAnimal(
             @Parameter(description = "Identificador publico (UUID) del animal a eliminar")
             @PathVariable String id);
 }

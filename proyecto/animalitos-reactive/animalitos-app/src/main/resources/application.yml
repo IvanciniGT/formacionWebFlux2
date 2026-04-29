@@ -1,20 +1,14 @@
 spring:
-  datasource:
-    url: jdbc:h2:mem:animalitos;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
+  # H2 en memoria via R2DBC. R2DBC NO genera DDL automaticamente,
+  # asi que cargamos el schema con sql.init.
+  r2dbc:
+    url: r2dbc:h2:mem:///animalitos;DB_CLOSE_DELAY=-1
     username: sa
     password: ""
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
 
 server:
   port: 8080

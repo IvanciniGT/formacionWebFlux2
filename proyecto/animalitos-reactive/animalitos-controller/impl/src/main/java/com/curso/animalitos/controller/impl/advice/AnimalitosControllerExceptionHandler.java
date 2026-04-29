@@ -9,14 +9,20 @@ import com.curso.animalitos.service.api.exceptions.DatosInvalidosException;
 import com.curso.animalitos.service.api.exceptions.RepositorioInaccesibleException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.support.WebExchangeBindException;
 
 import java.util.List;
 
 /**
- * AOP via @RestControllerAdvice (dia3): centraliza el mapeo de excepciones de negocio a HTTP.
+ * AOP via @RestControllerAdvice (dia3): centraliza el mapeo de excepciones
+ * de negocio a HTTP. Compatible con WebFlux: las excepciones que viajan en
+ * el flujo reactivo (Mono.error / Flux.error) se interceptan aqui igual
+ * que en Spring MVC.
+ *
+ * Nota: en WebFlux las violaciones de @Valid en @RequestBody no llegan como
+ * MethodArgumentNotValidException sino como {@link WebExchangeBindException}.
  */
 @RestControllerAdvice
 public class AnimalitosControllerExceptionHandler {
@@ -54,8 +60,8 @@ public class AnimalitosControllerExceptionHandler {
                 .body(ErrorResponseDTO.of(500, "Internal Server Error", ex.getMessage()));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDTO> handleValidacion(MethodArgumentNotValidException ex) {
+    @ExceptionHandler(WebExchangeBindException.class)
+    public ResponseEntity<ErrorResponseDTO> handleValidacion(WebExchangeBindException ex) {
         List<ValidationErrorDTO> detalles = ex.getBindingResult().getFieldErrors().stream()
                 .map(fe -> ValidationErrorDTO.of(fe.getField(), fe.getDefaultMessage()))
                 .toList();

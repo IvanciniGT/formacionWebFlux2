@@ -8,11 +8,11 @@ import com.curso.animalitos.service.api.AnimalitosServiceContractTest;
 import com.curso.animalitos.service.impl.mappers.AnimalServiceMapper;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -20,8 +20,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 
 /**
  * Ejecuta el contrato del servicio (caja negra) usando Mockito para construir
- * un repositorio "stateful" en memoria. No es una clase fake manual: cada
- * comportamiento esta declarado con thenAnswer().
+ * un repositorio reactivo "stateful" en memoria. No es una clase fake manual:
+ * cada comportamiento esta declarado con thenAnswer() y devuelve Mono/Flux.
+ *
+ * Nota: usamos Mono.fromCallable / Flux.defer para que cada suscripcion
+ * vuelva a tocar el "store" (igual que un repo reactivo de verdad).
  */
 class AnimalitosServiceImplContractTest extends AnimalitosServiceContractTest {
 
@@ -32,41 +35,53 @@ class AnimalitosServiceImplContractTest extends AnimalitosServiceContractTest {
         return new AnimalitosServiceImpl(repoMock, mapper);
     }
 
-    /** Construye un mock Mockito de AnimalitosRepository con estado en memoria. */
+    /** Construye un mock Mockito de AnimalitosRepository reactivo con estado en memoria. */
     private static AnimalitosRepository construirRepositorioMockito() {
         Map<String, Animal> store = new LinkedHashMap<>();
         AnimalitosRepository mock = Mockito.mock(AnimalitosRepository.class);
 
         Mockito.when(mock.findById(anyString())).thenAnswer(inv -> {
             String id = inv.getArgument(0);
-            return Optional.ofNullable(store.get(id));
+            return Mono.defer(() -> {
+                Animal a = store.get(id);
+                return a == null ? Mono.empty() : Mono.just(a);
+            });
         });
 
-        Mockito.when(mock.findAll()).thenAnswer(inv -> List.copyOf(store.values()));
+        Mockito.when(mock.findAll()).thenAnswer(inv ->
+                Flux.defer(() -> Flux.fromIterable(store.values())));
 
         Mockito.when(mock.create(any(Animal.class))).thenAnswer(inv -> {
             Animal datos = inv.getArgument(0);
-            String id = UUID.randomUUID().toString();
-            Animal creado = new Animal(id, datos.nombre(), datos.especie(), datos.edad());
-            store.put(id, creado);
-            return creado;
+            return Mono.fromCallable(() -> {
+                String id = UUID.randomUUID().toString();
+                Animal creado = new Animal(id, datos.nombre(), datos.especie(), datos.edad());
+                store.put(id, creado);
+                return creado;
+            });
         });
 
         Mockito.when(mock.update(anyString(), any(Animal.class))).thenAnswer(inv -> {
             String id = inv.getArgument(0);
             Animal datos = inv.getArgument(1);
-            Animal actual = store.get(id);
-            if (actual == null) {
-                throw new RepositorioException("No existe " + id, RepositorioException.TipoDeError.ANIMAL_NO_ENCONTRADO);
-            }
-            Animal modificado = new Animal(actual.id(), actual.nombre(), datos.especie(), datos.edad());
-            store.put(id, modificado);
-            return modificado;
+            return Mono.defer(() -> {
+                Animal actual = store.get(id);
+                if (actual == null) {
+                    return Mono.error(new RepositorioException(
+                            "No existe " + id, RepositorioException.TipoDeError.ANIMAL_NO_ENCONTRADO));
+                }
+                Animal modificado = new Animal(actual.id(), actual.nombre(), datos.especie(), datos.edad());
+                store.put(id, modificado);
+                return Mono.just(modificado);
+            });
         });
 
         Mockito.when(mock.deleteById(anyString())).thenAnswer(inv -> {
             String id = inv.getArgument(0);
-            return Optional.ofNullable(store.remove(id));
+            return Mono.defer(() -> {
+                Animal eliminado = store.remove(id);
+                return eliminado == null ? Mono.empty() : Mono.just(eliminado);
+            });
         });
 
         return mock;
