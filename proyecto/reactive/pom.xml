@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Datos identificativos del proyecto-->
+    <groupId>com.curso.reactive</groupId>
+    <artifactId>reactive</artifactId>
+    <version>1.0.0</version>
+
+    <!-- Modo de construcción --> 
+    <packaging>jar</packaging>
+
+    <!-- Metadatos -->
+    <name>Playground de Reactive Programming</name>
+
+    <!-- Variables que reusemos en el proyecto-->
+    <properties>
+        <!-- Props para los plugins -->
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Versiones de las dependencias -->
+    </properties>
+
+    <!-- Dependencias del proyecto -->
+    <dependencies>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.8.5</version>
+        </dependency>
+    </dependencies>
+    <!-- Para ejecutar mi programa, lo más fácil para no tener que configurar classpath es usar el plugin de exec -->
+    <!-- Para ejecutar uso: $ mvn exec:java -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <mainClass>com.curso.reactor.Demo1Mono</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project> 
